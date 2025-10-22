@@ -1,27 +1,26 @@
-name: Deploy on Push
+name: Deploy Node.js App
 
 on:
   push:
     branches:
-      - main  # change if your default branch is different
+      - main
 
 jobs:
   deploy:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
 
     steps:
-      - name: Checkout repository
+      - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Deploy to Server
-        uses: appleboy/ssh-action@v0.1.9
+      - name: Install Node.js (optional if already installed)
+        uses: actions/setup-node@v3
         with:
-          host: ssh.technove24.info
-          username: technove24
-          key: ${{ secrets.SERVER_SSH_KEY }}
-          port: 22
-          script: |
-            cd /var/www/html
-            git pull origin main
-            # if Node.js site, restart service or pm2
-            pm2 restart mysite
+          node-version: 20
+
+      - name: Deploy
+        run: |
+          cd /var/www/html
+          git pull origin main
+          npm install
+          pm2 restart mysite
