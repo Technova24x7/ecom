@@ -10,17 +10,37 @@ jobs:
     runs-on: self-hosted
 
     steps:
+      # Step 1: Checkout repository (required for GitHub Actions)
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Install Node.js (optional if already installed)
+      # Step 2: Ensure Node.js is installed (optional if already installed)
+      - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
           node-version: 20
 
+      # Step 3: Deploy code
       - name: Deploy
         run: |
+          set -x  # Print each command for debugging
+
+          # Optional: Ensure Node, npm, and pm2 are in PATH (adjust if necessary)
+          export PATH=$HOME/.nvm/versions/node/v20.0.0/bin:$PATH
+
+          # If the repo folder does not exist, clone it first
+          if [ ! -d /var/www/html/ecom/.git ]; then
+            git clone https://github.com/yourusername/yourrepo.git /var/www/html/ecom
+          else
+            cd /var/www/html/ecom
+            git reset --hard
+            git pull origin main
+          fi
+
           cd /var/www/html/ecom
-          git pull origin main
+
+          # Install Node.js dependencies
           npm install
-          pm2 restart mysite
+
+          # Restart PM2 process; if it doesn't exist, start it
+          pm2 restart mysite || pm2 start app.js --name mysite
