@@ -20,7 +20,7 @@ jobs:
 
       - name: Deploy
         run: |
-          cd /var/www/html
+          cd /var/www/html/ecom
           git pull origin main
           npm install
           pm2 restart mysite
